@@ -9,11 +9,11 @@ namespace Infrastructure.Data.Config
         public void Configure(EntityTypeBuilder<Product> builder)
         {
             builder.Property(p => p.Id).IsRequired();
-            builder.Property(p => p.CreatedBy).IsRequired();
+            builder.Property(p => p.CreatedBy).IsRequired().HasMaxLength(100);
             builder.Property(p => p.CreatedOn).IsRequired();
             builder.Property(p => p.Code).IsRequired().HasMaxLength(50);
-            builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
-            builder.Property(p => p.Description).IsRequired();
+            builder.Property(p => p.Name).IsRequired().HasMaxLength(128);
+            builder.Property(p => p.Description).IsRequired().HasMaxLength(250);
             builder.Property(p => p.Price).HasColumnType("decimal(18,2)");
             builder.Property(p => p.MeasurementName).IsRequired().HasMaxLength(50);
             builder.Property(p => p.PictureUrl);
