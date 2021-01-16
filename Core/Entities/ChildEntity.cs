@@ -5,6 +5,7 @@ namespace Core.Entities
     public abstract class ChildEntity
     {
         public string Id { get; set; }
+        public string Remark { get; set; }
         public string ProductCode { get; set; }
         public string ProductName { get; set; }
         public string Measurement { get; set; }

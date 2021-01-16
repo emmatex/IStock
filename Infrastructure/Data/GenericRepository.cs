@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Data
 {
-    public class GenericRepository
+    public class GenericRepository<T>
     {
     }
 }
