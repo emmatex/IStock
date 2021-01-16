@@ -2,7 +2,7 @@
 
 namespace Core.Entities
 {
-    public class BaseEntity
+    public abstract class BaseEntity
     {
         public string Id { get; set; }
         public bool IsDeleted { get; set; }
