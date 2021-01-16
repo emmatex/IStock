@@ -1,4 +1,4 @@
 # IStock
 Inventory application
 
-Start up project in the solition - <b>IStock</b>
+A sample .netcore 5 project - <b>IStock</b>
