@@ -8,7 +8,7 @@ namespace Infrastructure.Data.Config
     {
         public void Configure(EntityTypeBuilder<StockReceive> builder)
         {
-            builder.Property(p => p.Id).IsRequired();
+            builder.Property(p => p.Id).IsRequired().HasMaxLength(128);
             builder.Property(p => p.CreatedBy).IsRequired().HasMaxLength(100);
             builder.Property(p => p.CreatedOn).IsRequired();
             builder.Property(p => p.DocumentNo).IsRequired().HasMaxLength(50);
