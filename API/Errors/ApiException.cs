@@ -7,6 +7,7 @@
         {
             Details = details;
         }
+
         public string Details { get; set; }
     }
 }
