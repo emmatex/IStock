@@ -14,7 +14,7 @@ namespace Infrastructure.Identity
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<AppUser>().Property(a => a.DisplayName)
+            builder.Entity<AppUser>().Property(a => a.FullName)
                 .HasMaxLength(20)
                 .IsRequired();
         }

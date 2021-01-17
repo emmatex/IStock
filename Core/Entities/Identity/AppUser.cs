@@ -4,7 +4,7 @@ namespace Core.Entities.Identity
 {
     public class AppUser : IdentityUser
     {
-        public string DisplayName { get; set; }
+        public string FullName { get; set; }
         public bool IsDisabled { get; set; }
     }
 }
