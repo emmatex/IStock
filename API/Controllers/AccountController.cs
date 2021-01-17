@@ -35,7 +35,6 @@ namespace API.Controllers
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
             if (!result.Succeeded) return Unauthorized(new ApiResponse(401));
             return UserToReturn(user);
-
         }
 
         [HttpPost("register")]
