@@ -2,13 +2,11 @@
 using Core.Interfaces;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
-    public class UnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly DataContext _context;
         private Hashtable _repositories;
