@@ -54,18 +54,6 @@ namespace API.Controllers
             return _mapper.Map<Product, ProductDto>(product);
         }
 
-        [HttpGet("brands")]
-        public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetProductBrands()
-        {
-            return Ok(await _productBrandRepo.ListAllAsync());
-        }
-
-        [HttpGet("types")]
-        public async Task<ActionResult<IReadOnlyList<ProductType>>> GetProductTypes()
-        {
-            return Ok(await _productTypeRepo.ListAllAsync());
-        }
-
         [HttpPost(Name = "CreateProduct")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -100,14 +88,14 @@ namespace API.Controllers
             if (await _unitOfWork.Complete() <= 0)
                 return BadRequest(new ApiResponse(400, $"An error occured while trying to update"));
 
-            return CreatedAtRoute("GetProduct", new { vehicleId = product.Id },
+            return CreatedAtRoute("GetProduct", new { productId = product.Id },
                _mapper.Map<ProductDto>(product));
         }
 
         [HttpDelete("{productId}", Name = "DeleteProduct")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteVehicle(string productId)
+        public async Task<ActionResult> DeleteProduct(string productId)
         {
             var product = await _productsRepo.GetByIdAsync(productId);
             if (product == null) return NotFound(new ApiResponse(404));
@@ -120,7 +108,7 @@ namespace API.Controllers
         }
 
         [HttpOptions]
-        public IActionResult GetProductOptions()
+        public IActionResult GetOptions()
         {
             Response.Headers.Add("Allow", "GET,OPTIONS,POST,PUT,DELETE");
             return Ok();

@@ -14,7 +14,10 @@ namespace API.Helpers
                 .ForMember(d => d.PictureUrl, o => o.MapFrom<ProductUrlResolver>());
             CreateMap<ProductToCreateDto, Product>();
             CreateMap<ProductToUpdateDto, Product>();
+
             CreateMap<ProductBrand, ProductBrandDto>();
+            CreateMap<CreateUpdateBrandDto, ProductBrand>();
+
             CreateMap<ProductType, ProductTypeDto>();
         }
     }
