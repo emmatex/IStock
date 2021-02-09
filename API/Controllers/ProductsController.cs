@@ -17,13 +17,15 @@ namespace API.Controllers
     public class ProductsController : BaseApiController
     {
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Product> _productsRepo;
         private readonly IGenericRepository<ProductType> _productTypeRepo;
         private readonly IGenericRepository<ProductBrand> _productBrandRepo;
 
-        public ProductsController(IGenericRepository<Product> productsRepo, IGenericRepository<ProductBrand> productBrandRepo, IGenericRepository<ProductType> productTypeRepo, IMapper mapper)
+        public ProductsController(IGenericRepository<Product> productsRepo, IGenericRepository<ProductBrand> productBrandRepo, IGenericRepository<ProductType> productTypeRepo, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _productsRepo = productsRepo ?? throw new ArgumentNullException(nameof(productsRepo));
             _productTypeRepo = productTypeRepo ?? throw new ArgumentNullException(nameof(productTypeRepo));
             _productBrandRepo = productBrandRepo ?? throw new ArgumentNullException(nameof(productBrandRepo));
@@ -77,8 +79,11 @@ namespace API.Controllers
             product.CreatedBy = HttpContext.User.RetrieveEmailFromPrincipal();
             await _productsRepo.Add(product);
 
+            if (await _unitOfWork.Complete() <= 0)
+                return BadRequest(new ApiResponse(400, $"An error occured while trying to insert"));
+
             return CreatedAtRoute("GetProduct", new { productId = product.Id },
-               _mapper.Map<ProductDto>(product));
+                   _mapper.Map<ProductDto>(product));
         }
 
         [HttpPut("{productId}", Name = "UpdateProduct")]
@@ -92,7 +97,7 @@ namespace API.Controllers
             _mapper.Map(updateDto, product);
             _productsRepo.Update(product);
 
-            if (!await _productsRepo.SaveChangesAsync())
+            if (await _unitOfWork.Complete() <= 0)
                 return BadRequest(new ApiResponse(400, $"An error occured while trying to update"));
 
             return CreatedAtRoute("GetProduct", new { vehicleId = product.Id },
@@ -107,7 +112,10 @@ namespace API.Controllers
             var product = await _productsRepo.GetByIdAsync(productId);
             if (product == null) return NotFound(new ApiResponse(404));
             _productsRepo.Delete(product);
-            await _productsRepo.SaveChangesAsync();
+
+            if (await _unitOfWork.Complete() <= 0)
+                return BadRequest(new ApiResponse(400, $"An error occured while trying to delete"));
+
             return NoContent();
         }
 
