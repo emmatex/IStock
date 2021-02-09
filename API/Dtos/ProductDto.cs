@@ -46,7 +46,8 @@ namespace API.Dtos
 
     public class ProductToUpdateDto : ProductManipulationDto
     {
-
+        [Required]
+        public override string Description { get => base.Description; set => base.Description = value; }
     }
 
 }
