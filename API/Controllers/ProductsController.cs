@@ -28,15 +28,14 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Pagination<ProductDto>>> GetProducts([FromQuery]
-        ProductSpecParams productParams)
+        public async Task<ActionResult<Pagination<ProductDto>>> GetProducts([FromQuery] SpecParams specParams)
         {
-            var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
-            var countSpec = new ProductWithFiltersForCountSpecificication(productParams);
+            var spec = new ProductsWithTypesAndBrandsSpecification(specParams);
+            var countSpec = new ProductWithFiltersForCountSpecificication(specParams);
             var totalItems = await _repository.CountAsync(countSpec);
             var products = await _repository.ListAsync(spec);
             var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductDto>>(products);
-            return Ok(new Pagination<ProductDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
+            return Ok(new Pagination<ProductDto>(specParams.PageIndex, specParams.PageSize, totalItems, data));
         }
 
         [HttpGet("{id}", Name = "GetProduct")]

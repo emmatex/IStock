@@ -20,6 +20,14 @@ namespace API.Helpers
             CreateMap<CreateUpdateTypeDto, ProductType>();
             CreateMap<StockState, StockStateDto>();
             CreateMap<CreateUpdateStockStateDto, StockState>();
+
+            CreateMap<StockReceive, StockReceiveDto>();
+            CreateMap<StockReceive, SingleStockReceiveDto>();
+            CreateMap<CreateUpdateReceiveDto, StockReceive>();
+            CreateMap<StockReceiveDetail, StockReceiveDetailDto>();
+            CreateMap<CreateUpdateReceiveDetailDto, StockReceiveDetail>();
+
+
         }
     }
 }

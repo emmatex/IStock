@@ -2,19 +2,19 @@
 {
     public class ProductsWithTypesAndBrandsSpecification : BaseSpecification<Entities.Product>
     {
-        public ProductsWithTypesAndBrandsSpecification(ProductSpecParams productParams) : base(x =>
-              (string.IsNullOrEmpty(productParams.Search) || x.Name.ToLower().Contains(productParams.Search)) &&
-              (string.IsNullOrEmpty(productParams.Search) || x.MeasurementName.ToLower().Contains(productParams.Search)) &&
-              (string.IsNullOrEmpty(productParams.BrandId) || x.ProductBrandId == productParams.BrandId) &&
-              (string.IsNullOrEmpty(productParams.TypeId) || x.ProductTypeId == productParams.TypeId))
+        public ProductsWithTypesAndBrandsSpecification(SpecParams specParams) : base(x =>
+              (string.IsNullOrEmpty(specParams.Search) || x.Name.ToLower().Contains(specParams.Search)) &&
+              (string.IsNullOrEmpty(specParams.Search) || x.MeasurementName.ToLower().Contains(specParams.Search)) &&
+              (string.IsNullOrEmpty(specParams.BrandId) || x.ProductBrandId == specParams.BrandId) &&
+              (string.IsNullOrEmpty(specParams.TypeId) || x.ProductTypeId == specParams.TypeId))
         {
             AddInclude(x => x.ProductType);
             AddInclude(x => x.ProductBrand);
             AddOrderBy(x => x.Name);
-            ApplyPaging(productParams.PageSize * (productParams.PageIndex - 1), productParams.PageSize);
-            if (!string.IsNullOrEmpty(productParams.Sort))
+            ApplyPaging(specParams.PageSize * (specParams.PageIndex - 1), specParams.PageSize);
+            if (!string.IsNullOrEmpty(specParams.Sort))
             {
-                switch (productParams.Sort)
+                switch (specParams.Sort)
                 {
                     case "priceAsc":
                         AddOrderBy(p => p.Price);
@@ -35,4 +35,16 @@
             AddInclude(x => x.ProductBrand);
         }
     }
+
+    public class ProductWithFiltersForCountSpecificication : BaseSpecification<Entities.Product>
+    {
+        public ProductWithFiltersForCountSpecificication(SpecParams specParams) : base(x =>
+                (string.IsNullOrEmpty(specParams.Search) || x.Name.ToLower().Contains(specParams.Search)) &&
+                (string.IsNullOrEmpty(specParams.Search) || x.MeasurementName.ToLower().Contains(specParams.Search)) &&
+                (string.IsNullOrEmpty(specParams.BrandId) || x.ProductBrandId == specParams.BrandId) &&
+                (string.IsNullOrEmpty(specParams.TypeId) || x.ProductTypeId == specParams.TypeId))
+        {
+        }
+    }
+
 }
