@@ -18,17 +18,13 @@ namespace API.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IGenericRepository<Product> _productsRepo;
-        private readonly IGenericRepository<ProductType> _productTypeRepo;
-        private readonly IGenericRepository<ProductBrand> _productBrandRepo;
+        private readonly IGenericRepository<Product> _repository;
 
-        public ProductsController(IGenericRepository<Product> productsRepo, IGenericRepository<ProductBrand> productBrandRepo, IGenericRepository<ProductType> productTypeRepo, IMapper mapper, IUnitOfWork unitOfWork)
+        public ProductsController(IGenericRepository<Product> repository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-            _productsRepo = productsRepo ?? throw new ArgumentNullException(nameof(productsRepo));
-            _productTypeRepo = productTypeRepo ?? throw new ArgumentNullException(nameof(productTypeRepo));
-            _productBrandRepo = productBrandRepo ?? throw new ArgumentNullException(nameof(productBrandRepo));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         [HttpGet]
@@ -37,8 +33,8 @@ namespace API.Controllers
         {
             var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
             var countSpec = new ProductWithFiltersForCountSpecificication(productParams);
-            var totalItems = await _productsRepo.CountAsync(countSpec);
-            var products = await _productsRepo.ListAsync(spec);
+            var totalItems = await _repository.CountAsync(countSpec);
+            var products = await _repository.ListAsync(spec);
             var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductDto>>(products);
             return Ok(new Pagination<ProductDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
         }
@@ -49,7 +45,7 @@ namespace API.Controllers
         public async Task<ActionResult<ProductDto>> GetProduct(string id)
         {
             var spec = new ProductsWithTypesAndBrandsSpecification(id);
-            var product = await _productsRepo.GetEntityWithSpec(spec);
+            var product = await _repository.GetEntityWithSpec(spec);
             if (product == null) return NotFound(new ApiResponse(404));
             return _mapper.Map<Product, ProductDto>(product);
         }
@@ -59,13 +55,13 @@ namespace API.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ProductDto>> CreateProduct(ProductToCreateDto createDto)
         {
-            if (_productsRepo.IsExist(x => x.Name.ToLower() == createDto.Name.ToLower()))
+            if (_repository.IsExist(x => x.Name.ToLower() == createDto.Name.ToLower()))
                 return BadRequest(new ApiResponse(400, $"{createDto.Name} already exists"));
 
             var product = _mapper.Map<Product>(createDto);
             product.Id = Guid.NewGuid().ToString();
             product.CreatedBy = HttpContext.User.RetrieveEmailFromPrincipal();
-            await _productsRepo.Add(product);
+            await _repository.Add(product);
 
             if (await _unitOfWork.Complete() <= 0)
                 return BadRequest(new ApiResponse(400, $"An error occured while trying to insert"));
@@ -79,11 +75,11 @@ namespace API.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ProductDto>> UpdateProduct(string productId, ProductToUpdateDto updateDto)
         {
-            var product = await _productsRepo.GetByIdAsync(productId);
+            var product = await _repository.GetByIdAsync(productId);
             if (product == null) return NotFound(new ApiResponse(404));
 
             _mapper.Map(updateDto, product);
-            _productsRepo.Update(product);
+            _repository.Update(product);
 
             if (await _unitOfWork.Complete() <= 0)
                 return BadRequest(new ApiResponse(400, $"An error occured while trying to update"));
@@ -97,9 +93,9 @@ namespace API.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteProduct(string productId)
         {
-            var product = await _productsRepo.GetByIdAsync(productId);
+            var product = await _repository.GetByIdAsync(productId);
             if (product == null) return NotFound(new ApiResponse(404));
-            _productsRepo.Delete(product);
+            _repository.Delete(product);
 
             if (await _unitOfWork.Complete() <= 0)
                 return BadRequest(new ApiResponse(400, $"An error occured while trying to delete"));

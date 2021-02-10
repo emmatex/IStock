@@ -87,7 +87,7 @@ namespace API.Controllers
                _mapper.Map<ProductTypeDto>(type));
         }
 
-        [HttpDelete("{productId}", Name = "DeleteProductType")]
+        [HttpDelete("{typeId}", Name = "DeleteProductType")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteProductType(string typeId)
