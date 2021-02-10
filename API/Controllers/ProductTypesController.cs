@@ -14,85 +14,85 @@ using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    public class ProductBrandsController : BaseApiController
+    public class ProductTypesController : BaseApiController
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IGenericRepository<ProductBrand> _repository;
+        private readonly IGenericRepository<ProductType> _repository;
 
-        public ProductBrandsController(IGenericRepository<ProductBrand> repository, IMapper mapper, IUnitOfWork unitOfWork)
+        public ProductTypesController(IGenericRepository<ProductType> repository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        [HttpGet(Name = "GetProductBands")]
-        public async Task<ActionResult<Pagination<ProductBrandDto>>> GetProductBands([FromQuery] SpecParams specParams)
+        [HttpGet(Name = "GetProductTypes")]
+        public async Task<ActionResult<Pagination<ProductTypeDto>>> GetProductTypes([FromQuery] SpecParams specParams)
         {
-            var spec = new ProductBrandSpecification(specParams);
-            var countSpec = new ProductBandCountSpecificication(specParams);
+            var spec = new ProductTypeSpecification(specParams);
+            var countSpec = new ProductTypeCountSpecificication(specParams);
             var totalItems = await _repository.CountAsync(countSpec);
             var bands = await _repository.ListAsync(spec);
-            var data = _mapper.Map<IReadOnlyList<ProductBrand>, IReadOnlyList<ProductBrandDto>>(bands);
-            return Ok(new Pagination<ProductBrandDto>(specParams.PageIndex, specParams.PageSize, totalItems, data));
+            var data = _mapper.Map<IReadOnlyList<ProductType>, IReadOnlyList<ProductTypeDto>>(bands);
+            return Ok(new Pagination<ProductTypeDto>(specParams.PageIndex, specParams.PageSize, totalItems, data));
         }
 
-        [HttpGet("{bandId}", Name = "GetProductBand")]
+        [HttpGet("{typeId}", Name = "GetProductType")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ProductBrandDto>> GetProductBand(string bandId)
+        public async Task<ActionResult<ProductTypeDto>> GetProductType(string typeId)
         {
-            var spec = new ProductBrandSpecification(bandId);
-            var band = await _repository.GetEntityWithSpec(spec);
-            if (band == null) return NotFound(new ApiResponse(404));
-            return _mapper.Map<ProductBrand, ProductBrandDto>(band);
+            var spec = new ProductTypeSpecification(typeId);
+            var type = await _repository.GetEntityWithSpec(spec);
+            if (type == null) return NotFound(new ApiResponse(404));
+            return _mapper.Map<ProductType, ProductTypeDto>(type);
         }
 
-        [HttpPost(Name = "CreateProductBand")]
+        [HttpPost(Name = "CreateProductType")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ProductBrandDto>> CreateProductBand(CreateUpdateBrandDto createDto)
+        public async Task<ActionResult<ProductTypeDto>> CreateProductType(CreateUpdateTypeDto createDto)
         {
             if (_repository.IsExist(x => x.Name.ToLower() == createDto.Name.ToLower()))
                 return BadRequest(new ApiResponse(400, $"{createDto.Name} already exists"));
 
-            var brand = _mapper.Map<ProductBrand>(createDto);
-            brand.Id = Guid.NewGuid().ToString();
-            brand.CreatedBy = HttpContext.User.RetrieveEmailFromPrincipal();
-            await _repository.Add(brand);
+            var type = _mapper.Map<ProductType>(createDto);
+            type.Id = Guid.NewGuid().ToString();
+            type.CreatedBy = HttpContext.User.RetrieveEmailFromPrincipal();
+            await _repository.Add(type);
 
             if (await _unitOfWork.Complete() <= 0)
                 return BadRequest(new ApiResponse(400, $"An error occured while trying to insert"));
 
-            return CreatedAtRoute("GetProductBand", new { productId = brand.Id },
-                   _mapper.Map<ProductBrandDto>(brand));
+            return CreatedAtRoute("GetProductType", new { productId = type.Id },
+                   _mapper.Map<ProductTypeDto>(type));
         }
 
-        [HttpPut("{bandId}", Name = "UpdateProductBand")]
+        [HttpPut("{typeId}", Name = "UpdateProductType")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ProductBrandDto>> UpdateProductBand(string bandId, CreateUpdateBrandDto updateDto)
+        public async Task<ActionResult<ProductTypeDto>> UpdateProductType(string typeId, CreateUpdateTypeDto updateDto)
         {
-            var band = await _repository.GetByIdAsync(bandId);
-            if (band == null) return NotFound(new ApiResponse(404));
+            var type = await _repository.GetByIdAsync(typeId);
+            if (type == null) return NotFound(new ApiResponse(404));
 
-            _mapper.Map(updateDto, band);
-            _repository.Update(band);
+            _mapper.Map(updateDto, type);
+            _repository.Update(type);
 
             if (await _unitOfWork.Complete() <= 0)
                 return BadRequest(new ApiResponse(400, $"An error occured while trying to update"));
 
-            return CreatedAtRoute("GetProductBand", new { bandId = band.Id },
-               _mapper.Map<ProductBrandDto>(band));
+            return CreatedAtRoute("GetProductType", new { bandId = type.Id },
+               _mapper.Map<ProductTypeDto>(type));
         }
 
-        [HttpDelete("{bandId}", Name = "DeleteProductBand")]
+        [HttpDelete("{productId}", Name = "DeleteProductType")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteProductBand(string bandId)
+        public async Task<ActionResult> DeleteProductType(string typeId)
         {
-            var product = await _repository.GetByIdAsync(bandId);
+            var product = await _repository.GetByIdAsync(typeId);
             if (product == null) return NotFound(new ApiResponse(404));
             _repository.Delete(product);
 
@@ -108,7 +108,5 @@ namespace API.Controllers
             Response.Headers.Add("Allow", "GET,OPTIONS,POST,PUT,DELETE");
             return Ok();
         }
-
     }
 }
-
